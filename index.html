@@ -572,38 +572,47 @@
         return `${date}-${random}`;
     }
 
-    // ✅ الدالة المعدلة لحساب السعر
-    function calculatePrice() {
-        const weightInput = document.getElementById('weight');
-        const priceInput = document.getElementById('price');
-        const priceInfo = document.getElementById('priceInfo');
-        
-        const weight = parseFloat(weightInput.value);
-        if (isNaN(weight) || weight <= 0) {
-            priceInput.value = '';
-            priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
-            return;
-        }
+// ✅ الدالة المعدلة لحساب السعر
+function calculatePrice() {
+    const weightInput = document.getElementById('weight');
+    const priceInput = document.getElementById('price');
+    const priceInfo = document.getElementById('priceInfo');
 
-        let price = 0;
-        let pricePerKg = 0;
-        let additionalInfo = '';
-
-        if (weight >= 1 && weight <= 10) {
-            pricePerKg = 5000;
-            price = weight * pricePerKg;
-            additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار)`;
-        } else if (weight > 10) {
-            price = 50000;
-            additionalInfo = `(سعر ثابت: ${price} دينار لوزن أكثر من 10 كغم)`;
-        } else {
-            price = 0;
-            additionalInfo = `(وزن غير صالح)`;
-        }
-
-        priceInput.value = price;
-        priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
+    const weight = parseFloat(weightInput.value);
+    if (isNaN(weight) || weight <= 0) {
+        priceInput.value = '';
+        priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
+        return;
     }
+
+    let price = 0;
+    let pricePerKg = 0;
+    let additionalInfo = '';
+
+    if (weight >= 1 && weight <= 10) {
+        pricePerKg = 5000;
+        price = weight * pricePerKg;
+        additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار لكل كغم)`;
+    } else if (weight >= 11 && weight <= 15) {
+        pricePerKg = 4000;
+        price = weight * pricePerKg;
+        additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار لكل كغم)`;
+    } else if (weight >= 16 && weight <= 20) {
+        pricePerKg = 3000;
+        price = weight * pricePerKg;
+        additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار لكل كغم)`;
+    } else if (weight >= 21) {
+        pricePerKg = 2500;
+        price = weight * pricePerKg;
+        additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار لكل كغم)`;
+    } else {
+        price = 0;
+        additionalInfo = `(وزن غير صالح)`;
+    }
+
+    priceInput.value = price;
+    priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
+}
 
     function handleShipmentSubmit(e) {
         e.preventDefault();
