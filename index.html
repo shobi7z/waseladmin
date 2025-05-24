@@ -452,13 +452,27 @@
     let allUsers = [];
     let allShipments = [];
 
+    // التحقق من تسجيل الدخول عند تحميل الصفحة
+    window.addEventListener('load', () => {
+        const isLoggedIn = localStorage.getItem('loggedIn');
+        if (isLoggedIn === 'true') {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+            initializeDashboard();
+        } else {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('dashboardContainer').style.display = 'none';
+        }
+    });
+
     // تسجيل الدخول
     function handleLogin(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
-        if(username === 'fcwasel' && password === '5454') {
+        if (username === 'fcwasel' && password === '5454') {
+            localStorage.setItem('loggedIn', 'true');
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'block';
             initializeDashboard();
