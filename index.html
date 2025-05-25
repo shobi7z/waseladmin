@@ -434,7 +434,7 @@
         </div>
     </div>
 <script>
-    // تهيئة Firebase
+    // Firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyCKIaGp7rycn2Si88mc5VXfn0iQazvLT_c",
         authDomain: "wasel-910f9.firebaseapp.com",
@@ -448,11 +448,9 @@
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // متغيرات عامة
     let allUsers = [];
     let allShipments = [];
 
-    // التحقق من تسجيل الدخول عند تحميل الصفحة
     window.addEventListener('load', () => {
         const isLoggedIn = localStorage.getItem('loggedIn');
         if (isLoggedIn === 'true') {
@@ -465,7 +463,6 @@
         }
     });
 
-    // تسجيل الدخول
     function handleLogin(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -481,7 +478,6 @@
         }
     }
 
-    // القائمة الجانبية
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
     }
@@ -494,7 +490,6 @@
         toggleSidebar();
     }
 
-    // المستخدمين
     function handleUserSubmit(e) {
         e.preventDefault();
         const userData = {
@@ -507,7 +502,7 @@
         };
 
         const userId = document.getElementById('editUserId').value;
-        if(userId) {
+        if (userId) {
             database.ref(`users/${userId}`).update(userData);
         } else {
             database.ref('users').push(userData);
@@ -531,7 +526,6 @@
     function renderUsersList(users) {
         const container = document.getElementById('usersContainer');
         container.innerHTML = '';
-        
         users.forEach(user => {
             container.innerHTML += `
                 <div class="item-card">
@@ -550,7 +544,7 @@
 
     function searchUsers() {
         const term = document.getElementById('searchUsers').value.toLowerCase();
-        const filtered = allUsers.filter(user => 
+        const filtered = allUsers.filter(user =>
             user.username.toLowerCase().includes(term) ||
             user.province.toLowerCase().includes(term) ||
             user.phone1.includes(term) ||
@@ -574,57 +568,48 @@
     }
 
     function deleteUser(userId) {
-        if(confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
+        if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
             database.ref(`users/${userId}`).remove();
         }
     }
 
-    // الشحنات
     function generateShipmentNumber() {
-        const date = new Date().toISOString().slice(0,10).replace(/-/g, '');
+        const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         const random = Math.floor(100000 + Math.random() * 900000);
         return `${date}-${random}`;
     }
 
-function calculatePrice() {
-    const weightInput = document.getElementById('weight');
-    const priceInput = document.getElementById('price');
-    const priceInfo = document.getElementById('priceInfo');
+    function calculatePrice() {
+        const weightInput = document.getElementById('weight');
+        const priceInput = document.getElementById('price');
+        const priceInfo = document.getElementById('priceInfo');
 
-    const weight = parseFloat(weightInput.value);
-    if (isNaN(weight) || weight <= 0) {
-        priceInput.value = '';
-        priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
-        return;
-    }
+        const weight = parseFloat(weightInput.value);
+        if (isNaN(weight) || weight <= 0) {
+            priceInput.value = '';
+            priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
+            return;
+        }
 
-    let price = 0;
-    let pricePerKg = 0;
-    let additionalInfo = '';
+        let price = 0;
+        let additionalInfo = '';
 
-    if (weight > 0 && weight <= 10) {
-        pricePerKg = 5000;
-    } else if (weight > 10 && weight <= 15) {
-        pricePerKg = 4000;
-    } else if (weight > 15 && weight <= 20) {
-        pricePerKg = 3000;
-    } else if (weight > 20) {
-        pricePerKg = 2500;
-    }
+        if (weight >= 1 && weight < 10) {
+            price = weight * 5000;
+            price = Math.ceil(price);
+            additionalInfo = `(السعر: ${weight} × 5000 دينار لكل كغم)`;
+        } else if (weight >= 10) {
+            price = 55000;
+            additionalInfo = `(سعر ثابت من 10 كغم فما فوق)`;
+        } else {
+            priceInput.value = '';
+            priceInfo.textContent = 'وزن غير صالح';
+            return;
+        }
 
-    if (pricePerKg > 0) {
-        price = weight * pricePerKg;
-        // لتقريب السعر إلى أقرب رقم صحيح
-        price = Math.ceil(price);
-        additionalInfo = `(السعر: ${weight} × ${pricePerKg} دينار لكل كغم)`;
         priceInput.value = price;
         priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
-    } else {
-        priceInput.value = '';
-        priceInfo.textContent = 'وزن غير صالح';
     }
-}
-
 
     function handleShipmentSubmit(e) {
         e.preventDefault();
@@ -638,7 +623,7 @@ function calculatePrice() {
         };
 
         const shipmentId = document.getElementById('editShipmentId').value;
-        if(shipmentId) {
+        if (shipmentId) {
             database.ref(`shipments/${shipmentId}`).update(shipmentData);
         } else {
             database.ref('shipments').push(shipmentData);
@@ -667,7 +652,6 @@ function calculatePrice() {
     function renderShipmentsList(shipments) {
         const container = document.getElementById('shipmentsContainer');
         container.innerHTML = '';
-        
         shipments.forEach(shipment => {
             container.innerHTML += `
                 <div class="item-card">
@@ -688,7 +672,7 @@ function calculatePrice() {
 
     function searchShipments() {
         const term = document.getElementById('searchShipments').value.toLowerCase();
-        const filtered = allShipments.filter(shipment => 
+        const filtered = allShipments.filter(shipment =>
             shipment.number.toLowerCase().includes(term) ||
             shipment.status.toLowerCase().includes(term) ||
             (shipment.user && shipment.user.username.toLowerCase().includes(term))
@@ -700,7 +684,6 @@ function calculatePrice() {
         database.ref('users').on('value', snapshot => {
             const userSelect = document.getElementById('user');
             userSelect.innerHTML = '<option value="">اختر مستخدم...</option>';
-            
             let users = [];
             snapshot.forEach(child => {
                 users.push({
@@ -735,12 +718,11 @@ function calculatePrice() {
     }
 
     function deleteShipment(shipmentId) {
-        if(confirm('هل أنت متأكد من حذف هذه الشحنة؟')) {
+        if (confirm('هل أنت متأكد من حذف هذه الشحنة؟')) {
             database.ref(`shipments/${shipmentId}`).remove();
         }
     }
 
-    // التهيئة
     function initializeDashboard() {
         document.getElementById('shipmentNumber').value = generateShipmentNumber();
         updateStatistics();
@@ -780,3 +762,4 @@ function calculatePrice() {
         resetForms();
     }
 </script>
+
