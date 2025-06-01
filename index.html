@@ -609,12 +609,12 @@
         let additionalInfo = '';
 
         if (weight >= 1 && weight < 10) {
-            price = weight * 5500;
+            price = weight * 5000;
             price = Math.ceil(price);
-            additionalInfo = `(السعر: ${weight} × 5500 دينار لكل كغم)`;
+            additionalInfo = `(السعر: ${weight} × 5000 دينار لكل كغم)`;
         } else if (weight >= 10) {
-            price = 55000;
-            additionalInfo = `(سعر ثابت 55,000 دينار من 10 كغم فما فوق - توصيل مجاني)`;
+            price = 50000;
+            additionalInfo = `(سعر ثابت 50,000 دينار من 10 كغم فما فوق )`;
         } else {
             priceInput.value = '';
             priceInfo.textContent = 'وزن غير صالح';
