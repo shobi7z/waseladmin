@@ -611,26 +611,40 @@ function calculatePrice() {
     priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
 }
 
-    function handleShipmentSubmit(e) {
-        e.preventDefault();
-        const shipmentData = {
-            userId: document.getElementById('user').value,
-            number: document.getElementById('shipmentNumber').value,
-            weight: parseFloat(document.getElementById('weight').value),
-            price: parseInt(document.getElementById('price').value),
-            status: document.getElementById('status').value,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-        };
+    function handleUserSubmit(e) {
+    e.preventDefault();
 
-        const shipmentId = document.getElementById('editShipmentId').value;
-        if (shipmentId) {
-            database.ref(`shipments/${shipmentId}`).update(shipmentData);
-        } else {
-            database.ref('shipments').push(shipmentData);
-        }
-        resetForms();
+    const username = document.getElementById('newUsername').value.trim();
+    const userId = document.getElementById('editUserId').value;
+
+    // تحقق من تكرار اسم المستخدم
+    const isDuplicate = allUsers.some(user =>
+        user.username.trim().toLowerCase() === username.toLowerCase() &&
+        user.key !== userId // استثناء حالة التعديل
+    );
+
+    if (isDuplicate) {
+        alert('اسم المستخدم مضاف مسبقاً');
+        return;
     }
 
+    const userData = {
+        username: username,
+        password: document.getElementById('newPassword').value,
+        province: document.getElementById('province').value,
+        address: document.getElementById('address').value,
+        phone1: document.getElementById('phone1').value,
+        phone2: document.getElementById('phone2').value
+    };
+
+    if (userId) {
+        database.ref(`users/${userId}`).update(userData);
+    } else {
+        database.ref('users').push(userData);
+    }
+
+    resetForms();
+}
     function renderShipments() {
         database.ref('shipments').on('value', async snapshot => {
             allShipments = [];
