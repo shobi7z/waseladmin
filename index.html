@@ -492,8 +492,22 @@
 
     function handleUserSubmit(e) {
         e.preventDefault();
+
+        const username = document.getElementById('newUsername').value.trim();
+        const userId = document.getElementById('editUserId').value;
+
+        const isDuplicate = allUsers.some(user =>
+            user.username.trim().toLowerCase() === username.toLowerCase() &&
+            user.key !== userId
+        );
+
+        if (isDuplicate) {
+            alert('اسم المستخدم مضاف مسبقاً');
+            return;
+        }
+
         const userData = {
-            username: document.getElementById('newUsername').value,
+            username: username,
             password: document.getElementById('newPassword').value,
             province: document.getElementById('province').value,
             address: document.getElementById('address').value,
@@ -501,12 +515,12 @@
             phone2: document.getElementById('phone2').value
         };
 
-        const userId = document.getElementById('editUserId').value;
         if (userId) {
             database.ref(`users/${userId}`).update(userData);
         } else {
             database.ref('users').push(userData);
         }
+
         resetForms();
     }
 
@@ -579,72 +593,58 @@
         return `${date}-${random}`;
     }
 
-function calculatePrice() {
-    const weightInput = document.getElementById('weight');
-    const priceInput = document.getElementById('price');
-    const priceInfo = document.getElementById('priceInfo');
+    function calculatePrice() {
+        const weightInput = document.getElementById('weight');
+        const priceInput = document.getElementById('price');
+        const priceInfo = document.getElementById('priceInfo');
 
-    const weight = parseFloat(weightInput.value);
-    if (isNaN(weight) || weight <= 0) {
-        priceInput.value = '';
-        priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
-        return;
+        const weight = parseFloat(weightInput.value);
+        if (isNaN(weight) || weight <= 0) {
+            priceInput.value = '';
+            priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
+            return;
+        }
+
+        let price = 0;
+        let additionalInfo = '';
+
+        if (weight >= 1 && weight < 10) {
+            price = weight * 5500;
+            price = Math.ceil(price);
+            additionalInfo = `(السعر: ${weight} × 5500 دينار لكل كغم)`;
+        } else if (weight >= 10) {
+            price = 55000;
+            additionalInfo = `(سعر ثابت 55,000 دينار من 10 كغم فما فوق - توصيل مجاني)`;
+        } else {
+            priceInput.value = '';
+            priceInfo.textContent = 'وزن غير صالح';
+            return;
+        }
+
+        priceInput.value = price;
+        priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
     }
 
-    let price = 0;
-    let additionalInfo = '';
+    function handleShipmentSubmit(e) {
+        e.preventDefault();
+        const shipmentData = {
+            userId: document.getElementById('user').value,
+            number: document.getElementById('shipmentNumber').value,
+            weight: parseFloat(document.getElementById('weight').value),
+            price: parseInt(document.getElementById('price').value),
+            status: document.getElementById('status').value,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
 
-    if (weight >= 1 && weight < 10) {
-        price = weight * 5500; // هنا التعديل من 5000 إلى 5500
-        price = Math.ceil(price);
-        additionalInfo = `(السعر: ${weight} × 5500 دينار لكل كغم)`;
-    } else if (weight >= 10) {
-        price = 55000;
-        additionalInfo = `(سعر ثابت 55,000 دينار من 10 كغم فما فوق - توصيل مجاني)`;
-    } else {
-        priceInput.value = '';
-        priceInfo.textContent = 'وزن غير صالح';
-        return;
+        const shipmentId = document.getElementById('editShipmentId').value;
+        if (shipmentId) {
+            database.ref(`shipments/${shipmentId}`).update(shipmentData);
+        } else {
+            database.ref('shipments').push(shipmentData);
+        }
+        resetForms();
     }
 
-    priceInput.value = price;
-    priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
-}
-
-    function handleUserSubmit(e) {
-    e.preventDefault();
-
-    const username = document.getElementById('newUsername').value.trim();
-    const userId = document.getElementById('editUserId').value;
-
-    // تحقق من تكرار اسم المستخدم
-    const isDuplicate = allUsers.some(user =>
-        user.username.trim().toLowerCase() === username.toLowerCase() &&
-        user.key !== userId // استثناء حالة التعديل
-    );
-
-    if (isDuplicate) {
-        alert('اسم المستخدم مضاف مسبقاً');
-        return;
-    }
-
-    const userData = {
-        username: username,
-        password: document.getElementById('newPassword').value,
-        province: document.getElementById('province').value,
-        address: document.getElementById('address').value,
-        phone1: document.getElementById('phone1').value,
-        phone2: document.getElementById('phone2').value
-    };
-
-    if (userId) {
-        database.ref(`users/${userId}`).update(userData);
-    } else {
-        database.ref('users').push(userData);
-    }
-
-    resetForms();
-}
     function renderShipments() {
         database.ref('shipments').on('value', async snapshot => {
             allShipments = [];
