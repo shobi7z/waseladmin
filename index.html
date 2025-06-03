@@ -391,14 +391,12 @@
                         </div>
                         <div class="input-group">
                             <label>رقم الشحنة</label>
-                            <input type="text" id="shipmentNumber" required 
-                                   pattern="\d{8}-\d{6}" 
-                                   title="التنسيق: YYYYMMDD-123456">
+                            <input type="text" id="shipmentNumber" required>
                         </div>
                         <div class="input-group">
-    <label>الوزن (كغم)</label>
-    <input type="number" id="weight" placeholder="أدخل وزن الشحنة" step="any" min="0.01" required oninput="calculatePrice()">
-</div>
+                            <label>الوزن (كغم)</label>
+                            <input type="number" id="weight" placeholder="أدخل وزن الشحنة" step="any" min="0.01" required oninput="calculatePrice()">
+                        </div>
                         <div class="price-info" id="priceInfo">
                             سعر الشحنة سيتم حسابه تلقائياً حسب الوزن
                         </div>
@@ -408,6 +406,7 @@
                         </div>
                         <div class="input-group">
                             <select id="status" required>
+                                <option value="   بأنتظار وصول الشحنة الى مخازننا">بأنتظار وصول الشحنة الى مخازننا</option>
                                 <option value="تم الاستلام في الكويت">تم الاستلام في الكويت</option>
                                 <option value="تم الشحن للعراق">تم الشحن للعراق</option>
                                 <option value="تم الاستلام في العراق">تم الاستلام في العراق</option>
@@ -586,44 +585,39 @@
             database.ref(`users/${userId}`).remove();
         }
     }
+function calculatePrice() {
+    const weightInput = document.getElementById('weight');
+    const priceInput = document.getElementById('price');
+    const priceInfo = document.getElementById('priceInfo');
 
-    function generateShipmentNumber() {
-        const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const random = Math.floor(100000 + Math.random() * 900000);
-        return `${date}-${random}`;
+    const weight = parseFloat(weightInput.value);
+    if (isNaN(weight) || weight <= 0) {
+        priceInput.value = '';
+        priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
+        return;
     }
 
-    function calculatePrice() {
-        const weightInput = document.getElementById('weight');
-        const priceInput = document.getElementById('price');
-        const priceInfo = document.getElementById('priceInfo');
+    let price = 0;
+    let additionalInfo = '';
 
-        const weight = parseFloat(weightInput.value);
-        if (isNaN(weight) || weight <= 0) {
-            priceInput.value = '';
-            priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
-            return;
-        }
-
-        let price = 0;
-        let additionalInfo = '';
-
-        if (weight >= 1 && weight < 10) {
-            price = weight * 5000;
-            price = Math.ceil(price);
-            additionalInfo = `(السعر: ${weight} × 5000 دينار لكل كغم)`;
-        } else if (weight >= 10) {
-            price = 50000;
-            additionalInfo = `(سعر ثابت 50,000 دينار من 10 كغم فما فوق )`;
-        } else {
-            priceInput.value = '';
-            priceInfo.textContent = 'وزن غير صالح';
-            return;
-        }
-
-        priceInput.value = price;
-        priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
+    if (weight >= 1 && weight <= 4) {
+        price = 20000;
+        additionalInfo = '(سعر ثابت: 20,000 دينار من 1 إلى 4 كغم)';
+    } else if (weight >= 5 && weight <= 9) {
+        price = 40000;
+        additionalInfo = '(سعر ثابت: 40,000 دينار من 5 إلى 9 كغم)';
+    } else if (weight >= 10 && weight <= 30) {
+        price = 55000;
+        additionalInfo = '(سعر ثابت: 55,000 دينار من 10 إلى 30 كغم)';
+    } else {
+        priceInput.value = '';
+        priceInfo.textContent = 'وزن غير صالح (يجب أن يكون بين 1 و 30 كغم)';
+        return;
     }
+
+    priceInput.value = price;
+    priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
+}
 
     function handleShipmentSubmit(e) {
         e.preventDefault();
@@ -738,7 +732,7 @@
     }
 
     function initializeDashboard() {
-        document.getElementById('shipmentNumber').value = generateShipmentNumber();
+        document.getElementById('shipmentNumber').value = '';
         updateStatistics();
         renderUsers();
         renderShipments();
@@ -767,7 +761,7 @@
         document.getElementById('shipmentForm').reset();
         document.getElementById('editUserId').value = '';
         document.getElementById('editShipmentId').value = '';
-        document.getElementById('shipmentNumber').value = generateShipmentNumber();
+        document.getElementById('shipmentNumber').value = '';
         document.getElementById('user').selectedIndex = 0;
         document.getElementById('priceInfo').textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
     }
