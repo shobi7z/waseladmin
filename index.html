@@ -407,7 +407,7 @@
                         <div class="input-group">
                             <select id="status" required>
                                 <option value="   بأنتظار وصول الشحنة الى مخازننا">بأنتظار وصول الشحنة الى مخازننا</option>
-                                <option value="تم الاستلام في السعودية">تم الاستلام في السعودية</option>
+                                <option value="تم الاستلام في الكويت">تم الاستلام في الكويت</option>
                                 <option value="تم الشحن للعراق">تم الشحن للعراق</option>
                                 <option value="تم الاستلام في العراق">تم الاستلام في العراق</option>
                                 <option value="تم التسليم">تم التسليم</option>
@@ -600,11 +600,14 @@ function calculatePrice() {
     let price = 0;
     let additionalInfo = '';
 
-    if (weight >= 1 && weight <= 9) {
-        price = weight * 5000;
+    if (weight >= 1 && weight <= 5) {
+        price = weight * 6000;
         additionalInfo = `(سعر 6,000 دينار لكل كغم من 1 إلى 5 كغم: ${weight} × 6000 = ${price})`;
-    } else if (weight >= 10 && weight <= 30) {
-        price = 40000;
+} else if (weight >= 6 && weight <= 9) {
+        price = weight * 5000;
+        additionalInfo = `(سعر 5,000 دينار لكل كغم من 6 إلى 9 كغم: ${weight} × 5000 = ${price})`;
+} else if (weight >= 10 && weight <= 30) {
+        price = 55000;
         additionalInfo = '(سعر ثابت: 55,000 دينار من 10 إلى 30 كغم)';
     } else {
         priceInput.value = '';
