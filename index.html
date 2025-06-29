@@ -1,769 +1,609 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>نظام إدارة الشحنات المتقدم</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <style>
-        :root {
-            --primary: #7E57C2;
-            --secondary: #9575CD;
-            --accent: #FF5252;
-            --background: #F5F5F5;
-            --text: #2D2D2D;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--background);
-            color: var(--text);
-        }
-
-        /* أنماط تسجيل الدخول */
-        .login-container {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .login-form {
-            background: rgba(255, 255, 255, 0.98);
-            padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        /* شريط الأدوات العلوي */
-        .top-bar {
-            padding: 1rem 2rem;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .menu-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-size: 1.1rem;
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .menu-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-0.1rem);
-        }
-
-        /* القائمة الجانبية */
-        .sidebar {
-            position: fixed;
-            right: -320px;
-            top: 0;
-            width: 300px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 1.5rem;
-            z-index: 1000;
-        }
-
-        .sidebar.active {
-            right: 0;
-        }
-
-        .sidebar button {
-            width: 100%;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            border-radius: 0.5rem;
-            border: none;
-            background: none;
-            text-align: right;
-            font-size: 1.1rem;
-            color: var(--text);
-            position: relative;
-            transition: 0.3s ease;
-        }
-
-        .sidebar button:hover {
-            background: rgba(126, 87, 194, 0.05);
-            padding-right: 1.5rem;
-        }
-
-        .sidebar button:hover::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 60%;
-            width: 0.25rem;
-            background: var(--accent);
-            border-radius: 1rem;
-        }
-
-        /* البطاقات الإحصائية */
-        .stats-grid {
-            display: grid;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
-            transition: 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-0.5rem);
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-        }
-
-        /* نماذج الإدارة */
-        .form-container {
-            max-width: 600px;
-            margin: 2rem auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #EEE;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
-        }
-
-        /* أزرار العمل */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #EEE;
-            color: #666;
-        }
-
-        /* قوائم العناصر */
-        .items-list {
-            margin-top: 2rem;
-        }
-
-        .item-card {
-            background: white;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s ease;
-        }
-
-        .item-card:hover {
-            transform: translateX(0.5rem);
-            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
-        }
-
-        /* أنماط البحث الجديدة */
-        .search-box {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-            border: 2px solid #EEE;
-            border-radius: 2rem;
-            font-size: 1rem;
-            background: #FFF url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%237E57C2" d="M23.707,22.293l-5.969-5.969a10.016,10.016,0,1,0-1.414,1.414l5.969,5.969a1,1,0,0,0,1.414-1.414ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></svg>') no-repeat right 1rem center;
-            background-size: 1.2rem;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .list-header h3 {
-            margin: 0;
-        }
-
-        .price-info {
-            background-color: #f8f9fa;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            margin-top: -1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        @media (max-width: 600px) {
-            .list-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .search-box {
-                width: 100% !important;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>توصيل الطلبات | صفحة الأدمن</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 RTL -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      font-family: 'Tajawal', Arial, sans-serif;
+    }
+    .main-card {
+      box-shadow: 0 8px 36px 0 rgba(47, 128, 237, 0.12);
+      border-radius: 2rem;
+      background: #fff;
+      transition: box-shadow 0.2s;
+      border: none;
+    }
+    .main-card:hover {
+      box-shadow: 0 12px 48px 0 rgba(47, 128, 237, 0.10);
+    }
+    .nav-pills .nav-link.active {
+      background: linear-gradient(90deg, #1976d2 60%, #4f8cff 100%) !important;
+      color: #fff !important;
+      box-shadow: 0 2px 12px #1976d233;
+    }
+    .user-list { max-height: 350px; overflow-y: auto;}
+    .user-list .list-group-item {cursor:pointer;}
+    .order-status-badge {
+      border-radius: 12px;
+      font-size: .97rem;
+      color: #fff;
+      padding: .32em 1.1em;
+      font-weight: bold;
+    }
+    .order-status-badge.bg-warning { color: #222 !important;}
+    .order-status-badge.bg-primary { background: #1976d2 !important;}
+    .order-status-badge.bg-success { background: #43a047 !important;}
+    .order-status-badge.bg-danger  { background: #d32f2f !important;}
+    .order-status-badge.bg-secondary { background: #616161 !important;}
+    .table thead { background: linear-gradient(90deg, #f1f8ff 80%, #e3eafe 100%);}
+    .table-responsive { border-radius: 1.5rem; overflow: hidden; }
+    .account-cell { font-size: 0.95rem; color: #1976d2;}
+    .btn-outline-danger { border: 2px solid #dc3545;}
+    .btn-outline-danger:hover { background: #dc3545; color: #fff; }
+    .paid-label {
+      display: inline-block;
+      background: #00bcd4;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.2em 0.8em;
+      font-size: 1rem;
+      margin-inline-end: 0.2em;
+      margin-bottom: 2px;
+      letter-spacing: 1px;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #1976d2 70%, #4f8cff 100%) !important;
+      color: #fff !important;
+      border-radius: 1.5rem;
+    }
+    .navbar .navbar-brand {
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .navbar .navbar-brand i {
+      font-size: 2.3rem;
+      color: #ffc107;
+    }
+    .tab-content { margin-bottom: 2rem; }
+    .fade-in { animation: fadein 0.7s; }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(25px);}
+      to   { opacity: 1; transform: translateY(0);}
+    }
+    .modal-content { border-radius: 1.4rem; }
+    ::-webkit-scrollbar { width: 8px; background: #e3eafe;}
+    ::-webkit-scrollbar-thumb { background: #b0c9f7; border-radius: 8px; }
+    .search-box {
+      max-width: 300px;
+      margin-bottom: 1rem;
+      margin-inline-start: auto;
+      margin-inline-end: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .search-box input {
+      border-radius: 1rem;
+      border: 1.5px solid #b0c9f7;
+      background: #f9fbff;
+      transition: border-color 0.2s;
+      font-size: 1.04rem;
+    }
+    .search-box input:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 0 1px #1976d2;
+    }
+    .search-box .bi-search {
+      color: #1976d2;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-    <!-- واجهة تسجيل الدخول -->
-    <div class="login-container" id="loginContainer">
-        <form class="login-form" onsubmit="handleLogin(event)">
-            <h2 style="text-align: center; color: var(--primary); margin-bottom: 2rem;">تسجيل الدخول</h2>
-            <div class="input-group">
-                <input type="text" id="username" placeholder="اسم المستخدم" required>
+  <div class="container py-5">
+    <!-- Login Section -->
+    <div id="loginSection" class="row justify-content-center align-items-center fade-in" style="min-height:80vh;">
+      <div class="col-md-6 col-lg-4">
+        <div class="main-card p-4">
+          <div class="text-center mb-4">
+            <i class="bi bi-shield-lock" style="font-size:2.6rem;color:#1976d2;"></i>
+            <h3 class="fw-bold mt-2" style="color:#1976d2;">تسجيل دخول الأدمن</h3>
+          </div>
+          <form id="loginForm" autocomplete="off">
+            <div class="mb-3">
+              <label class="form-label">اسم المستخدم</label>
+              <input type="text" class="form-control" id="loginUsername" required>
             </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="كلمة المرور" required>
+            <div class="mb-3">
+              <label class="form-label">كلمة المرور</label>
+              <input type="password" class="form-control" id="loginPassword" required>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">دخول</button>
-        </form>
+            <div class="d-grid mb-2">
+              <button type="submit" class="btn btn-primary">دخول الأدمن</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-
-    <!-- لوحة التحكم -->
-    <div class="dashboard-container" id="dashboardContainer" style="display: none;">
-        <!-- شريط الأدوات -->
-        <div class="top-bar">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <span>☰</span>
-                <span>القائمة</span>
-            </button>
+    <!-- Main Admin Section -->
+    <div id="mainAppSection" style="display:none;">
+      <!-- NAVBAR -->
+      <nav class="navbar navbar-expand-lg mb-4 px-3 fade-in">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-rocket-takeoff"></i> توصيل الطلبات | الأدمن</a>
+        <button class="btn btn-outline-danger ms-auto" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</button>
+      </nav>
+      <ul class="nav nav-pills mb-4 fade-in" id="mainTabs">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#usersTab"><i class="bi bi-people"></i> المستخدمون</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#withdrawalsTab"><i class="bi bi-wallet2"></i> طلبات السحب</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#ordersTab"><i class="bi bi-card-list"></i> كل الطلبات</button></li>
+      </ul>
+      <div class="tab-content">
+        <!-- Users Tab -->
+        <div class="tab-pane fade show active" id="usersTab">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="main-card p-3 mb-3">
+                <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-person-plus"></i> إضافة مستخدم جديد</h6>
+                <form id="addUserForm">
+                  <div class="mb-2">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" class="form-control" id="newUsername" required>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">العنوان</label>
+                    <input type="text" class="form-control" id="newAddress" required>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">رقم الهاتف الأول</label>
+                    <input type="text" class="form-control" id="newPhone1" required>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">رقم الهاتف الثاني</label>
+                    <input type="text" class="form-control" id="newPhone2">
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">اسم البيج</label>
+                    <input type="text" class="form-control" id="newPage" required>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-control" id="newPassword" required>
+                  </div>
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-success"><i class="bi bi-plus-circle"></i> إضافة المستخدم</button>
+                  </div>
+                </form>
+              </div>
+              <div class="main-card p-3">
+                <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-people"></i> قائمة المستخدمين</h6>
+                <ul class="list-group user-list" id="usersList"></ul>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="main-card p-3">
+                <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-person-bounding-box"></i> بيانات المستخدم</h6>
+                <div id="selectedUserInfo"></div>
+                <div id="selectedUserOrders"></div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <!-- القائمة الجانبية -->
-        <div class="sidebar" id="sidebar">
-            <div style="margin-bottom: 2rem;">
-                <h3 style="color: var(--primary);">الإدارة الشاملة</h3>
+        <!-- Withdrawals Tab -->
+        <div class="tab-pane fade" id="withdrawalsTab">
+          <div class="main-card p-3 fade-in">
+            <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-wallet2"></i> طلبات السحب</h6>
+            <div class="table-responsive">
+              <table class="table align-middle table-hover">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>الطريقة</th>
+                    <th>رقم حساب الرافدين</th>
+                    <th>المبلغ</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="adminWithdrawalsTable"></tbody>
+              </table>
             </div>
-            <button onclick="showSection('dashboard')">📊 الإحصائيات</button>
-            <button onclick="showSection('users')">👥 إدارة المستخدمين</button>
-            <button onclick="showSection('shipments')">🚚 إدارة الشحنات</button>
+          </div>
         </div>
-
-        <!-- المحتوى الرئيسي -->
-        <div class="main-content">
-            <!-- لوحة الإحصائيات -->
-            <div id="dashboard" class="section">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>👤 عدد المستخدمين</h3>
-                        <p id="usersCount">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>📦 عدد الشحنات</h3>
-                        <p id="shipmentsCount">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>💵 المبلغ الكلي</h3>
-                        <p id="totalAmount">0 دينار</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>⚖️ الوزن الكلي</h3>
-                        <p id="totalWeight">0 كغم</p>
-                    </div>
-                </div>
+        <!-- All Orders Tab -->
+        <div class="tab-pane fade" id="ordersTab">
+          <div class="main-card p-3 fade-in">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-card-list"></i> كل الطلبات</h6>
+              <div class="search-box">
+                <input type="text" class="form-control" id="orderSearchInput" placeholder="بحث برقم الطلب...">
+                <span><i class="bi bi-search"></i></span>
+              </div>
             </div>
-
-            <!-- إدارة المستخدمين -->
-            <div id="users" class="section" style="display: none;">
-                <div class="form-container">
-                    <h2>إدارة المستخدمين</h2>
-                    <form id="userForm" onsubmit="handleUserSubmit(event)">
-                        <input type="hidden" id="editUserId">
-                        <div class="input-group">
-                            <input type="text" id="newUsername" placeholder="اسم المستخدم" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="password" id="newPassword" placeholder="كلمة المرور" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" id="province" placeholder="المحافظة" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" id="address" placeholder="العنوان" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="tel" id="phone1" placeholder="الرقم الأول" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="tel" id="phone2" placeholder="الرقم الثاني" required>
-                        </div>
-                        <div style="display: flex; gap: 1rem;">
-                            <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
-                            <button type="button" onclick="cancelEdit()" class="btn btn-secondary">إلغاء</button>
-                        </div>
-                    </form>
-
-                    <div class="items-list">
-                        <div class="list-header">
-                            <h3>المستخدمون المسجلون</h3>
-                            <div class="search-box" style="width: 300px;">
-                                <input type="text" id="searchUsers" placeholder="ابحث بالمستخدم..." onkeyup="searchUsers()">
-                            </div>
-                        </div>
-                        <div id="usersContainer"></div>
-                    </div>
-                </div>
+            <div class="table-responsive">
+              <table class="table align-middle table-hover">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>رقم الطلب</th>
+                    <th>العنوان</th>
+                    <th>الهاتف 1</th>
+                    <th>الهاتف 2</th>
+                    <th>المبلغ</th>
+                    <th>الحالة</th>
+                    <th>تغيير الحالة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="adminOrdersTable"></tbody>
+              </table>
             </div>
-
-            <!-- إدارة الشحنات -->
-            <div id="shipments" class="section" style="display: none;">
-                <div class="form-container">
-                    <h2>إدارة الشحنات</h2>
-                    <form id="shipmentForm" onsubmit="handleShipmentSubmit(event)">
-                        <input type="hidden" id="editShipmentId">
-                        <div class="input-group">
-                            <label>اختر المستخدم</label>
-                            <select id="user" class="user-select" required>
-                                <option value="">اختر مستخدم...</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>رقم الشحنة</label>
-                            <input type="text" id="shipmentNumber" required>
-                        </div>
-                        <div class="input-group">
-                            <label>الوزن (كغم)</label>
-                            <input type="number" id="weight" placeholder="أدخل وزن الشحنة" step="any" min="0.01" required oninput="calculatePrice()">
-                        </div>
-                        <div class="price-info" id="priceInfo">
-                            سعر الشحنة سيتم حسابه تلقائياً حسب الوزن
-                        </div>
-                        <div class="input-group">
-                            <label>السعر (دينار)</label>
-                            <input type="number" id="price" placeholder="سوف يتم حساب السعر تلقائياً" readonly required>
-                        </div>
-                        <div class="input-group">
-                            <select id="status" required>
-                                <option value="   بأنتظار وصول الشحنة الى مخازننا">بأنتظار وصول الشحنة الى مخازننا</option>
-                                <option value="تم الاستلام في الكويت">تم الاستلام في الكويت</option>
-                                <option value="تم الشحن للعراق">تم الشحن للعراق</option>
-                                <option value="تم الاستلام في العراق">تم الاستلام في العراق</option>
-                                <option value="تم التسليم">تم التسليم</option>
-                            </select>
-                        </div>
-                        <div style="display: flex; gap: 1rem;">
-                            <button type="submit" class="btn btn-primary">حفظ الشحنة</button>
-                            <button type="button" onclick="cancelEdit()" class="btn btn-secondary">إلغاء</button>
-                        </div>
-                    </form>
-
-                    <div class="items-list">
-                        <div class="list-header">
-                            <h3>سجل الشحنات</h3>
-                            <div class="search-box" style="width: 300px;">
-                                <input type="text" id="searchShipments" placeholder="ابحث بالشحنات..." onkeyup="searchShipments()">
-                            </div>
-                        </div>
-                        <div id="shipmentsContainer"></div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-<script>
-    // Firebase config
+  </div>
+
+  <!-- تعديل الطلب (نافذة منبثقة) -->
+  <div class="modal fade" id="editOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" id="adminOrderEditForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-pencil-square"></i> تعديل الطلب</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="adminEditOrderUid">
+          <input type="hidden" id="adminEditOrderId">
+          <div class="mb-3">
+            <label class="form-label">عنوان الزبون</label>
+            <input type="text" class="form-control" id="adminOrderAddress" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">رقم الهاتف الأول</label>
+            <input type="text" class="form-control" id="adminOrderPhone1" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">رقم الهاتف الثاني</label>
+            <input type="text" class="form-control" id="adminOrderPhone2">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">المبلغ الكلي بدون التوصيل (د.ع)</label>
+            <input type="number" class="form-control" id="adminOrderAmount" required min="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">حفظ</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5, SweetAlert2, Firebase SDKs -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    // Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, push, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
     const firebaseConfig = {
-        apiKey: "AIzaSyCKIaGp7rycn2Si88mc5VXfn0iQazvLT_c",
-        authDomain: "wasel-910f9.firebaseapp.com",
-        databaseURL: "https://wasel-910f9-default-rtdb.firebaseio.com",
-        projectId: "wasel-910f9",
-        storageBucket: "wasel-910f9.appspot.com",
-        messagingSenderId: "45165850758",
-        appId: "1:45165850758:web:9a423737071789d2ffe107",
-        measurementId: "G-KCD23STGQX"
+      apiKey: "AIzaSyBKh3zoKYEbm7aGNH6GRzA5SQx4DYhM7gc",
+      authDomain: "arpon11-a4ead.firebaseapp.com",
+      databaseURL: "https://arpon11-a4ead-default-rtdb.firebaseio.com",
+      projectId: "arpon11-a4ead",
+      storageBucket: "arpon11-a4ead.firebasestorage.app",
+      messagingSenderId: "231633090493",
+      appId: "1:231633090493:web:d0c1973bd13b58f7b044d4",
+      measurementId: "G-8YJ5394ZP8"
     };
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
 
-    let allUsers = [];
-    let allShipments = [];
+    // Cached DOM
+    const loginSection = document.getElementById('loginSection');
+    const mainAppSection = document.getElementById('mainAppSection');
+    const loginForm = document.getElementById('loginForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const addUserForm = document.getElementById('addUserForm');
+    const usersList = document.getElementById('usersList');
+    const selectedUserInfo = document.getElementById('selectedUserInfo');
+    const selectedUserOrders = document.getElementById('selectedUserOrders');
+    const adminWithdrawalsTable = document.getElementById('adminWithdrawalsTable');
+    const adminOrdersTable = document.getElementById('adminOrdersTable');
+    const orderSearchInput = document.getElementById('orderSearchInput');
+    // Edit order modal fields
+    const adminEditOrderUid = document.getElementById('adminEditOrderUid');
+    const adminEditOrderId = document.getElementById('adminEditOrderId');
+    const adminOrderAddress = document.getElementById('adminOrderAddress');
+    const adminOrderPhone1 = document.getElementById('adminOrderPhone1');
+    const adminOrderPhone2 = document.getElementById('adminOrderPhone2');
+    const adminOrderAmount = document.getElementById('adminOrderAmount');
+    const adminOrderEditForm = document.getElementById('adminOrderEditForm');
 
-    window.addEventListener('load', () => {
-        const isLoggedIn = localStorage.getItem('loggedIn');
-        if (isLoggedIn === 'true') {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('dashboardContainer').style.display = 'block';
-            initializeDashboard();
-        } else {
-            document.getElementById('loginContainer').style.display = 'flex';
-            document.getElementById('dashboardContainer').style.display = 'none';
-        }
-    });
+    let usersArr = [], allOrdersArr = [], allWithdrawalsArr = [];
+    let selectedUserId = null, usersMap = {};
+    let filteredOrdersArr = []; // بعد البحث
 
-    function handleLogin(e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        if (username === 'fcwasel' && password === '5454') {
-            localStorage.setItem('loggedIn', 'true');
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('dashboardContainer').style.display = 'block';
-            initializeDashboard();
-        } else {
-            alert('بيانات الاعتماد غير صحيحة!');
-        }
+    function usernameToEmail(username) {
+      return username.trim().replace(/\s+/g,'_') + "@arpon11.com";
     }
 
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-    }
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (username === "waselland@admai.com" && password === "5454iq") {
+        loginSection.style.display = 'none';
+        mainAppSection.style.display = '';
+        loadUsers();
+        loadAllOrders();
+        loadAllWithdrawals();
+      } else {
+        Swal.fire({ icon: 'error', title: 'بيانات الدخول غير صحيحة!' });
+      }
+    };
 
-    function showSection(sectionId) {
-        document.querySelectorAll('.section').forEach(section => {
-            section.style.display = 'none';
+    logoutBtn.onclick = () => location.reload();
+
+    function loadUsers() {
+      onValue(ref(db, "users"), snap => {
+        usersArr = [];
+        usersMap = {};
+        usersList.innerHTML = '';
+        if (snap.exists()) {
+          usersArr = Object.entries(snap.val()).map(([uid, data]) => ({uid, ...data}));
+          usersArr.forEach(u => {
+            usersMap[u.uid] = u;
+            usersList.innerHTML += `<li class="list-group-item" onclick="selectUser('${u.uid}')">${u.username}</li>`;
+          });
+        }
+      });
+    }
+    window.selectUser = (uid) => {
+      selectedUserId = uid;
+      const u = usersMap[uid];
+      if (!u) return;
+      selectedUserInfo.innerHTML =
+        `<div class="mb-2"><b>اسم المستخدم:</b> ${u.username}</div>
+         <div class="mb-2"><b>العنوان:</b> ${u.address}</div>
+         <div class="mb-2"><b>الهاتف 1:</b> ${u.phone1} | <b>الهاتف 2:</b> ${u.phone2 || '-'}</div>
+         <div class="mb-2"><b>اسم البيج:</b> ${u.page}</div>`;
+      get(ref(db, `orders/${uid}`)).then(snap => {
+        selectedUserOrders.innerHTML = `<h6 class="fw-bold mt-3">طلبات المستخدم</h6>`;
+        if (snap.exists()) {
+          selectedUserOrders.innerHTML += `
+            <table class="table table-sm align-middle">
+              <thead><tr><th>رقم الطلب</th><th>العنوان</th><th>الهاتف 1</th><th>المبلغ</th><th>الحالة</th></tr></thead>
+              <tbody>
+                ${
+                  Object.values(snap.val()).map(order =>
+                  `<tr>
+                    <td>${order.number}</td>
+                    <td>${order.address}</td>
+                    <td>${order.phone1}</td>
+                    <td>${order.amount}</td>
+                    <td>${order.status}</td>
+                  </tr>`).join('')
+                }
+              </tbody>
+            </table>
+          `;
+        } else {
+          selectedUserOrders.innerHTML += `<div class="alert alert-info mt-2">لا توجد طلبات</div>`;
+        }
+      });
+    };
+
+    addUserForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('newUsername').value.trim();
+      const address = document.getElementById('newAddress').value.trim();
+      const phone1 = document.getElementById('newPhone1').value.trim();
+      const phone2 = document.getElementById('newPhone2').value.trim();
+      const page = document.getElementById('newPage').value.trim();
+      const password = document.getElementById('newPassword').value;
+      if (!username || !address || !phone1 || !page || !password) return;
+      const email = usernameToEmail(username);
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+        await set(ref(db, "users/" + uid), {
+          username, address, phone1, phone2, page
         });
-        document.getElementById(sectionId).style.display = 'block';
-        toggleSidebar();
+        Swal.fire({icon:'success',title:'تمت إضافة المستخدم بنجاح!'});
+        addUserForm.reset();
+      } catch (err) {
+        Swal.fire({icon:'error',title:'فشل إضافة المستخدم',text:err.message});
+      }
+    };
+
+    function renderOrdersTable(ordersArr) {
+      adminOrdersTable.innerHTML = '';
+      ordersArr.forEach(order => {
+        const uid = order.userId;
+        const orderId = order.orderId;
+        adminOrdersTable.innerHTML += `
+          <tr>
+            <td>${usersMap[uid]?.username || '---'}</td>
+            <td>${order.number}</td>
+            <td>${order.address}</td>
+            <td>${order.phone1}</td>
+            <td>${order.phone2}</td>
+            <td>${order.amount}</td>
+            <td>
+              <span class="badge order-status-badge bg-${
+                order.status==='بأنتظار وصول المندوب اليك' ? 'warning'
+                : order.status==='تم الاستلام من قبل المندوب' ? 'success'
+                : order.status==='راجعة' ? 'danger'
+                : order.status==='تم التسليم بنجاح' ? 'primary'
+                : 'secondary'
+              }">${order.status}</span>
+            </td>
+            <td>
+              <select class="form-select form-select-sm" onchange="changeOrderStatus('${uid}','${orderId}',this.value)">
+                <option value="بأنتظار وصول المندوب اليك" ${order.status==='بأنتظار وصول المندوب اليك'?'selected':''}>بأنتظار وصول المندوب اليك</option>
+                <option value="تم الاستلام من قبل المندوب" ${order.status==='تم الاستلام من قبل المندوب'?'selected':''}>تم الاستلام من قبل المندوب</option>
+                <option value="راجعة" ${order.status==='راجعة'?'selected':''}>راجعة</option>
+                <option value="تم التسليم بنجاح" ${order.status==='تم التسليم بنجاح'?'selected':''}>تم التسليم بنجاح</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary mb-1" onclick="adminEditOrder('${uid}','${orderId}')"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="adminDeleteOrder('${uid}','${orderId}')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      });
     }
 
-    function handleUserSubmit(e) {
-        e.preventDefault();
-
-        const username = document.getElementById('newUsername').value.trim();
-        const userId = document.getElementById('editUserId').value;
-
-        const isDuplicate = allUsers.some(user =>
-            user.username.trim().toLowerCase() === username.toLowerCase() &&
-            user.key !== userId
-        );
-
-        if (isDuplicate) {
-            alert('اسم المستخدم مضاف مسبقاً');
-            return;
-        }
-
-        const userData = {
-            username: username,
-            password: document.getElementById('newPassword').value,
-            province: document.getElementById('province').value,
-            address: document.getElementById('address').value,
-            phone1: document.getElementById('phone1').value,
-            phone2: document.getElementById('phone2').value
-        };
-
-        if (userId) {
-            database.ref(`users/${userId}`).update(userData);
-        } else {
-            database.ref('users').push(userData);
-        }
-
-        resetForms();
-    }
-
-    function renderUsers() {
-        database.ref('users').on('value', snapshot => {
-            allUsers = [];
-            snapshot.forEach(child => {
-                allUsers.push({
-                    key: child.key,
-                    ...child.val()
-                });
+    function loadAllOrders() {
+      onValue(ref(db, "orders"), snap => {
+        allOrdersArr = [];
+        if (snap.exists()) {
+          Object.entries(snap.val()).forEach(([uid, orders]) => {
+            Object.entries(orders).forEach(([orderId, order]) => {
+              allOrdersArr.push({...order, orderId, userId: uid});
             });
-            renderUsersList(allUsers);
-        });
-    }
-
-    function renderUsersList(users) {
-        const container = document.getElementById('usersContainer');
-        container.innerHTML = '';
-        users.forEach(user => {
-            container.innerHTML += `
-                <div class="item-card">
-                    <div>
-                        <h4>${user.username}</h4>
-                        <p>${user.province} - ${user.phone1}</p>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-primary" onclick="editUser('${user.key}')">تعديل</button>
-                        <button class="btn btn-danger" onclick="deleteUser('${user.key}')">حذف</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    function searchUsers() {
-        const term = document.getElementById('searchUsers').value.toLowerCase();
-        const filtered = allUsers.filter(user =>
-            user.username.toLowerCase().includes(term) ||
-            user.province.toLowerCase().includes(term) ||
-            user.phone1.includes(term) ||
-            user.phone2.includes(term)
-        );
-        renderUsersList(filtered);
-    }
-
-    function editUser(userId) {
-        database.ref(`users/${userId}`).once('value').then(snapshot => {
-            const user = snapshot.val();
-            document.getElementById('editUserId').value = userId;
-            document.getElementById('newUsername').value = user.username;
-            document.getElementById('newPassword').value = user.password;
-            document.getElementById('province').value = user.province;
-            document.getElementById('address').value = user.address;
-            document.getElementById('phone1').value = user.phone1;
-            document.getElementById('phone2').value = user.phone2;
-            window.scrollTo(0, 0);
-        });
-    }
-
-    function deleteUser(userId) {
-        if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-            database.ref(`users/${userId}`).remove();
+          });
         }
+        // عند التغيير في البحث أو البيانات أعد رسم الجدول
+        filterOrders();
+      });
     }
-function calculatePrice() {
-    const weightInput = document.getElementById('weight');
-    const priceInput = document.getElementById('price');
-    const priceInfo = document.getElementById('priceInfo');
 
-    const weight = parseFloat(weightInput.value);
-    if (isNaN(weight) || weight <= 0) {
-        priceInput.value = '';
-        priceInfo.textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
+    // بحث حسب رقم الطلب
+    function filterOrders() {
+      const query = orderSearchInput.value.trim();
+      if (!query) {
+        renderOrdersTable(allOrdersArr);
         return;
+      }
+      // بحث جزئي وليس مطابق تماماً
+      filteredOrdersArr = allOrdersArr.filter(order =>
+        order.number && order.number.includes(query)
+      );
+      renderOrdersTable(filteredOrdersArr);
     }
 
-    let price = 0;
-    let additionalInfo = '';
+    orderSearchInput.addEventListener('input', filterOrders);
 
-    if (weight >= 1 && weight <= 9) {
-        price = weight * 5000;
-        additionalInfo = `(سعر 5,000 دينار لكل كغم من 1 إلى 9 كغم: ${weight} × 5000 = ${price})`;
-} else if (weight >= 10 && weight <= 30) {
-        price = 45000;
-        additionalInfo = '(سعر ثابت: 45,000 دينار من 10 إلى 30 كغم)';
-    } else {
-        priceInput.value = '';
-        priceInfo.textContent = 'وزن غير صالح (يجب أن يكون بين 1 و 30 كغم)';
-        return;
-    }
-
-    priceInput.value = price;
-    priceInfo.textContent = `تم حساب السعر تلقائياً ${additionalInfo}`;
-}
-
-    function handleShipmentSubmit(e) {
-        e.preventDefault();
-        const shipmentData = {
-            userId: document.getElementById('user').value,
-            number: document.getElementById('shipmentNumber').value,
-            weight: parseFloat(document.getElementById('weight').value),
-            price: parseInt(document.getElementById('price').value),
-            status: document.getElementById('status').value,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-        };
-
-        const shipmentId = document.getElementById('editShipmentId').value;
-        if (shipmentId) {
-            database.ref(`shipments/${shipmentId}`).update(shipmentData);
-        } else {
-            database.ref('shipments').push(shipmentData);
+    window.adminDeleteOrder = async (uid, orderId) => {
+      Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف الطلب؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، احذف',
+        cancelButtonText: 'إلغاء'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await remove(ref(db, `orders/${uid}/${orderId}`));
         }
-        resetForms();
-    }
+      });
+    };
 
-    function renderShipments() {
-        database.ref('shipments').on('value', async snapshot => {
-            allShipments = [];
-            const usersSnapshot = await database.ref('users').once('value');
-            const users = usersSnapshot.val();
+    window.adminEditOrder = (uid, orderId) => {
+      const order = allOrdersArr.find(o => o.userId === uid && o.orderId === orderId);
+      if (!order) return;
+      adminEditOrderUid.value = uid;
+      adminEditOrderId.value = orderId;
+      adminOrderAddress.value = order.address;
+      adminOrderPhone1.value = order.phone1;
+      adminOrderPhone2.value = order.phone2 || '';
+      adminOrderAmount.value = order.amount;
+      new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+    };
 
-            snapshot.forEach(child => {
-                const shipment = child.val();
-                allShipments.push({
-                    key: child.key,
-                    ...shipment,
-                    user: users[shipment.userId]
-                });
+    adminOrderEditForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const uid = adminEditOrderUid.value;
+      const orderId = adminEditOrderId.value;
+      const address = adminOrderAddress.value.trim();
+      const phone1 = adminOrderPhone1.value.trim();
+      const phone2 = adminOrderPhone2.value.trim();
+      const amount = parseInt(adminOrderAmount.value, 10);
+      await update(ref(db, `orders/${uid}/${orderId}`), {
+        address, phone1, phone2, amount
+      });
+      bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+    };
+
+    function loadAllWithdrawals() {
+      onValue(ref(db, "withdrawals"), snap => {
+        allWithdrawalsArr = [];
+        adminWithdrawalsTable.innerHTML = '';
+        if (snap.exists()) {
+          Object.entries(snap.val()).forEach(([uid, arr]) => {
+            Object.entries(arr).forEach(([wid, w]) => {
+              allWithdrawalsArr.push({...w, wid, userId: uid});
+              adminWithdrawalsTable.innerHTML += `
+                <tr>
+                  <td>${usersMap[uid]?.username || '---'}</td>
+                  <td>${w.method === 'delivery' ? 'مندوب' : 'مصرف الرافدين'}</td>
+                  <td class="account-cell">${w.method === 'bank' && w.bankAccount ? w.bankAccount : '-'}</td>
+                  <td>${w.amount} د.ع</td>
+                  <td>
+                    <span class="badge bg-${w.status==='قيد المعالجة'?'warning':'success'}">${w.status}</span>
+                  </td>
+                  <td>
+                    ${w.status==='قيد المعالجة'?
+                      `<button class="btn btn-sm btn-success mb-1" onclick="approveWithdrawal('${uid}','${wid}')">تم الاستلام</button>`
+                      : ''}
+                    <button class="btn btn-sm btn-danger" onclick="deleteWithdrawal('${uid}','${wid}')">حذف</button>
+                  </td>
+                </tr>
+              `;
             });
-            renderShipmentsList(allShipments);
-        });
-    }
-
-    function renderShipmentsList(shipments) {
-        const container = document.getElementById('shipmentsContainer');
-        container.innerHTML = '';
-        shipments.forEach(shipment => {
-            container.innerHTML += `
-                <div class="item-card">
-                    <div>
-                        <h4>${shipment.number}</h4>
-                        <p>المستخدم: ${shipment.user ? shipment.user.username : 'غير معروف'}</p>
-                        <p>الوزن: ${shipment.weight}kg | السعر: ${shipment.price} IQD</p>
-                        <p>الحالة: ${shipment.status}</p>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-primary" onclick="editShipment('${shipment.key}')">تعديل</button>
-                        <button class="btn btn-danger" onclick="deleteShipment('${shipment.key}')">حذف</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    function searchShipments() {
-        const term = document.getElementById('searchShipments').value.toLowerCase();
-        const filtered = allShipments.filter(shipment =>
-            shipment.number.toLowerCase().includes(term) ||
-            shipment.status.toLowerCase().includes(term) ||
-            (shipment.user && shipment.user.username.toLowerCase().includes(term))
-        );
-        renderShipmentsList(filtered);
-    }
-
-    function loadUsersToSelect() {
-        database.ref('users').on('value', snapshot => {
-            const userSelect = document.getElementById('user');
-            userSelect.innerHTML = '<option value="">اختر مستخدم...</option>';
-            let users = [];
-            snapshot.forEach(child => {
-                users.push({
-                    key: child.key,
-                    ...child.val()
-                });
-            });
-
-            users.sort((a, b) => a.username.localeCompare(b.username, 'ar'));
-
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.key;
-                option.textContent = `${user.username} - ${user.province}`;
-                userSelect.appendChild(option);
-            });
-        });
-    }
-
-    function editShipment(shipmentId) {
-        database.ref(`shipments/${shipmentId}`).once('value').then(snapshot => {
-            const shipment = snapshot.val();
-            document.getElementById('editShipmentId').value = shipmentId;
-            document.getElementById('user').value = shipment.userId;
-            document.getElementById('shipmentNumber').value = shipment.number;
-            document.getElementById('weight').value = shipment.weight;
-            document.getElementById('price').value = shipment.price;
-            document.getElementById('status').value = shipment.status;
-            document.getElementById('priceInfo').textContent = 'سعر الشحنة محسوب مسبقاً';
-            window.scrollTo(0, 0);
-        });
-    }
-
-    function deleteShipment(shipmentId) {
-        if (confirm('هل أنت متأكد من حذف هذه الشحنة؟')) {
-            database.ref(`shipments/${shipmentId}`).remove();
+          });
         }
+      });
     }
+    window.approveWithdrawal = async (uid, wid) => {
+      await update(ref(db, `withdrawals/${uid}/${wid}`), {status:'تم الاستلام'});
+    };
+    window.deleteWithdrawal = async (uid, wid) => {
+      Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف عملية السحب؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، احذف',
+        cancelButtonText: 'إلغاء'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await remove(ref(db, `withdrawals/${uid}/${wid}`));
+        }
+      });
+    };
 
-    function initializeDashboard() {
-        document.getElementById('shipmentNumber').value = '';
-        updateStatistics();
-        renderUsers();
-        renderShipments();
-        loadUsersToSelect();
-    }
-
-    function updateStatistics() {
-        database.ref('users').on('value', snapshot => {
-            document.getElementById('usersCount').textContent = snapshot.numChildren();
-        });
-
-        database.ref('shipments').on('value', snapshot => {
-            let totalAmount = 0, totalWeight = 0;
-            snapshot.forEach(child => {
-                totalAmount += child.val().price || 0;
-                totalWeight += child.val().weight || 0;
-            });
-            document.getElementById('shipmentsCount').textContent = snapshot.numChildren();
-            document.getElementById('totalAmount').textContent = totalAmount.toLocaleString() + ' دينار';
-            document.getElementById('totalWeight').textContent = totalWeight.toLocaleString() + ' كغم';
-        });
-    }
-
-    function resetForms() {
-        document.getElementById('userForm').reset();
-        document.getElementById('shipmentForm').reset();
-        document.getElementById('editUserId').value = '';
-        document.getElementById('editShipmentId').value = '';
-        document.getElementById('shipmentNumber').value = '';
-        document.getElementById('user').selectedIndex = 0;
-        document.getElementById('priceInfo').textContent = 'سعر الشحنة سيتم حسابه تلقائياً حسب الوزن';
-    }
-
-    function cancelEdit() {
-        resetForms();
-    }
-</script>
+    // تثبيت الدوال
+    window.selectUser = window.selectUser;
+    window.changeOrderStatus = async (uid, orderId, status) => {
+      await update(ref(db, `orders/${uid}/${orderId}`), {status});
+    };
+    window.adminDeleteOrder = window.adminDeleteOrder;
+    window.adminEditOrder = window.adminEditOrder;
+    window.approveWithdrawal = window.approveWithdrawal;
+    window.deleteWithdrawal = window.deleteWithdrawal;
+  </script>
+</body>
+</html>
