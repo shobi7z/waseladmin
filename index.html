@@ -4,53 +4,106 @@
   <meta charset="UTF-8">
   <title>توصيل الطلبات | صفحة الأدمن</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 RTL -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <!-- SweetAlert2 -->
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
       min-height: 100vh;
       font-family: 'Tajawal', Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+    }
+    .container {
+      padding-right: 15px;
+      padding-left: 15px;
     }
     .main-card {
       box-shadow: 0 8px 36px 0 rgba(47, 128, 237, 0.12);
-      border-radius: 2rem;
+      border-radius: 1.5rem;
       background: #fff;
       transition: box-shadow 0.2s;
       border: none;
+      margin-bottom: 1.5rem;
     }
     .main-card:hover {
       box-shadow: 0 12px 48px 0 rgba(47, 128, 237, 0.10);
+    }
+    .nav-pills .nav-link {
+      color: #1976d2;
+      font-weight: bold;
+      border-radius: 0.75rem;
+      padding: 0.6rem 1rem;
     }
     .nav-pills .nav-link.active {
       background: linear-gradient(90deg, #1976d2 60%, #4f8cff 100%) !important;
       color: #fff !important;
       box-shadow: 0 2px 12px #1976d233;
     }
-    .user-list { max-height: 350px; overflow-y: auto;}
-    .user-list .list-group-item {cursor:pointer;}
+    .nav-pills {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .nav-pills .nav-item {
+        margin: 0.3rem;
+    }
+    .user-list {
+      max-height: 350px;
+      overflow-y: auto;
+      border-radius: 1rem;
+      border: 1px solid #e0e0e0;
+    }
+    .user-list .list-group-item {
+      cursor: pointer;
+      border: none;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 0.8rem 1rem;
+      transition: background-color 0.2s;
+    }
+    .user-list .list-group-item:hover {
+      background-color: #f5f5f5;
+    }
     .order-status-badge {
       border-radius: 12px;
-      font-size: .97rem;
+      font-size: .85rem;
       color: #fff;
       padding: .32em 1.1em;
       font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 90px;
     }
     .order-status-badge.bg-warning { color: #222 !important;}
     .order-status-badge.bg-primary { background: #1976d2 !important;}
     .order-status-badge.bg-success { background: #43a047 !important;}
-    .order-status-badge.bg-danger  { background: #d32f2f !important;}
+    .order-status-badge.bg-danger { background: #d32f2f !important;}
     .order-status-badge.bg-secondary { background: #616161 !important;}
-    .table thead { background: linear-gradient(90deg, #f1f8ff 80%, #e3eafe 100%);}
-    .table-responsive { border-radius: 1.5rem; overflow: hidden; }
-    .account-cell { font-size: 0.95rem; color: #1976d2;}
-    .btn-outline-danger { border: 2px solid #dc3545;}
+    .table thead {
+      background: linear-gradient(90deg, #f1f8ff 80%, #e3eafe 100%);
+      color: #1e3c72;
+    }
+    .table-responsive {
+      border-radius: 1.25rem;
+      overflow: auto;
+      border: 1px solid #e0e0e0;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table th, .table td {
+        padding: 0.8rem;
+        vertical-align: middle;
+    }
+    .account-cell { font-size: 0.9rem; color: #1976d2;}
+    .btn-outline-danger {
+      border: 2px solid #dc3545;
+      color: #dc3545;
+      font-weight: bold;
+      border-radius: 0.75rem;
+    }
     .btn-outline-danger:hover { background: #dc3545; color: #fff; }
     .paid-label {
       display: inline-block;
@@ -58,27 +111,28 @@
       color: #fff;
       border-radius: 8px;
       padding: 0.2em 0.8em;
-      font-size: 1rem;
+      font-size: 0.9rem;
       margin-inline-end: 0.2em;
       margin-bottom: 2px;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
     .navbar {
       background: linear-gradient(90deg, #1976d2 70%, #4f8cff 100%) !important;
       color: #fff !important;
       border-radius: 1.5rem;
+      padding: 0.75rem 1.5rem;
     }
     .navbar .navbar-brand {
       color: #fff;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: bold;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: .6rem;
+      gap: .5rem;
     }
     .navbar .navbar-brand i {
-      font-size: 2.3rem;
+      font-size: 2rem;
       color: #ffc107;
     }
     .tab-content { margin-bottom: 2rem; }
@@ -88,7 +142,7 @@
       to   { opacity: 1; transform: translateY(0);}
     }
     .modal-content { border-radius: 1.4rem; }
-    ::-webkit-scrollbar { width: 8px; background: #e3eafe;}
+    ::-webkit-scrollbar { width: 8px; height: 8px; background: #e3eafe;}
     ::-webkit-scrollbar-thumb { background: #b0c9f7; border-radius: 8px; }
     .search-box {
       max-width: 300px;
@@ -104,7 +158,8 @@
       border: 1.5px solid #b0c9f7;
       background: #f9fbff;
       transition: border-color 0.2s;
-      font-size: 1.04rem;
+      font-size: 1rem;
+      padding: 0.6rem 0.8rem;
     }
     .search-box input:focus {
       border-color: #1976d2;
@@ -112,78 +167,92 @@
     }
     .search-box .bi-search {
       color: #1976d2;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+    }
+    @media (max-width: 767.98px) {
+      .navbar .navbar-brand { font-size: 1.4rem; }
+      .navbar .navbar-brand i { font-size: 1.8rem; }
+      .btn-outline-danger { padding: 0.5rem 0.8rem; font-size: 0.9rem; }
+      .main-card { border-radius: 1rem; }
+      .nav-pills .nav-link { font-size: 0.9rem; padding: 0.5rem 0.8rem; }
+      .search-box { max-width: 100%; margin-inline-start: 0; margin-inline-end: 0; justify-content: flex-end; }
+      .d-flex.flex-wrap.justify-content-between.align-items-center.mb-3 {
+        flex-direction: column; align-items: flex-end !important;
+      }
+      .d-flex.flex-wrap.justify-content-between.align-items-center.mb-3 h6 { margin-bottom: 0.8rem !important; }
     }
   </style>
 </head>
 <body>
-  <div class="container py-5">
-    <!-- Login Section -->
+  <div class="container py-4 py-md-5">
     <div id="loginSection" class="row justify-content-center align-items-center fade-in" style="min-height:80vh;">
-      <div class="col-md-6 col-lg-4">
+      <div class="col-12 col-md-6 col-lg-4">
         <div class="main-card p-4">
           <div class="text-center mb-4">
-            <i class="bi bi-shield-lock" style="font-size:2.6rem;color:#1976d2;"></i>
-            <h3 class="fw-bold mt-2" style="color:#1976d2;">تسجيل دخول الأدمن</h3>
+            <i class="bi bi-shield-lock" style="font-size:3rem;color:#1976d2;"></i>
+            <h3 class="fw-bold mt-3" style="color:#1976d2;">تسجيل دخول الأدمن</h3>
           </div>
           <form id="loginForm" autocomplete="off">
             <div class="mb-3">
-              <label class="form-label">اسم المستخدم</label>
+              <label for="loginUsername" class="form-label">اسم المستخدم</label>
               <input type="text" class="form-control" id="loginUsername" required>
             </div>
-            <div class="mb-3">
-              <label class="form-label">كلمة المرور</label>
+            <div class="mb-4">
+              <label for="loginPassword" class="form-label">كلمة المرور</label>
               <input type="password" class="form-control" id="loginPassword" required>
             </div>
-            <div class="d-grid mb-2">
-              <button type="submit" class="btn btn-primary">دخول الأدمن</button>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">دخول الأدمن</button>
             </div>
           </form>
         </div>
       </div>
     </div>
-    <!-- Main Admin Section -->
     <div id="mainAppSection" style="display:none;">
-      <!-- NAVBAR -->
       <nav class="navbar navbar-expand-lg mb-4 px-3 fade-in">
         <a class="navbar-brand fw-bold" href="#"><i class="bi bi-rocket-takeoff"></i> توصيل الطلبات | الأدمن</a>
         <button class="btn btn-outline-danger ms-auto" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</button>
       </nav>
-      <ul class="nav nav-pills mb-4 fade-in" id="mainTabs">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#usersTab"><i class="bi bi-people"></i> المستخدمون</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#withdrawalsTab"><i class="bi bi-wallet2"></i> طلبات السحب</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#ordersTab"><i class="bi bi-card-list"></i> كل الطلبات</button></li>
+      <ul class="nav nav-pills mb-4 fade-in" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="pill" data-bs-target="#usersTab" type="button" role="tab" aria-controls="usersTab" aria-selected="true"><i class="bi bi-people"></i> المستخدمون</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="withdrawals-tab" data-bs-toggle="pill" data-bs-target="#withdrawalsTab" type="button" role="tab" aria-controls="withdrawalsTab" aria-selected="false"><i class="bi bi-wallet2"></i> طلبات السحب</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="orders-tab" data-bs-toggle="pill" data-bs-target="#ordersTab" type="button" role="tab" aria-controls="ordersTab" aria-selected="false"><i class="bi bi-card-list"></i> كل الطلبات</button>
+        </li>
       </ul>
       <div class="tab-content">
-        <!-- Users Tab -->
-        <div class="tab-pane fade show active" id="usersTab">
+        <div class="tab-pane fade show active" id="usersTab" role="tabpanel" aria-labelledby="users-tab">
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-5 col-lg-4">
               <div class="main-card p-3 mb-3">
                 <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-person-plus"></i> إضافة مستخدم جديد</h6>
                 <form id="addUserForm">
                   <div class="mb-2">
-                    <label class="form-label">اسم المستخدم</label>
+                    <label for="newUsername" class="form-label">اسم المستخدم</label>
                     <input type="text" class="form-control" id="newUsername" required>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">العنوان</label>
+                    <label for="newAddress" class="form-label">العنوان</label>
                     <input type="text" class="form-control" id="newAddress" required>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">رقم الهاتف الأول</label>
+                    <label for="newPhone1" class="form-label">رقم الهاتف الأول</label>
                     <input type="text" class="form-control" id="newPhone1" required>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">رقم الهاتف الثاني</label>
+                    <label for="newPhone2" class="form-label">رقم الهاتف الثاني</label>
                     <input type="text" class="form-control" id="newPhone2">
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">اسم البيج</label>
+                    <label for="newPage" class="form-label">اسم البيج</label>
                     <input type="text" class="form-control" id="newPage" required>
                   </div>
-                  <div class="mb-2">
-                    <label class="form-label">كلمة المرور</label>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label">كلمة المرور</label>
                     <input type="password" class="form-control" id="newPassword" required>
                   </div>
                   <div class="d-grid">
@@ -196,17 +265,20 @@
                 <ul class="list-group user-list" id="usersList"></ul>
               </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-7 col-lg-8">
               <div class="main-card p-3">
                 <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-person-bounding-box"></i> بيانات المستخدم</h6>
-                <div id="selectedUserInfo"></div>
+                <div id="selectedUserInfo" class="mb-3">
+                    <div class="alert alert-info text-center" role="alert">
+                        الرجاء تحديد مستخدم من القائمة لعرض بياناته
+                    </div>
+                </div>
                 <div id="selectedUserOrders"></div>
               </div>
             </div>
           </div>
         </div>
-        <!-- Withdrawals Tab -->
-        <div class="tab-pane fade" id="withdrawalsTab">
+        <div class="tab-pane fade" id="withdrawalsTab" role="tabpanel" aria-labelledby="withdrawals-tab">
           <div class="main-card p-3 fade-in">
             <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-wallet2"></i> طلبات السحب</h6>
             <div class="table-responsive">
@@ -221,16 +293,17 @@
                     <th>إجراءات</th>
                   </tr>
                 </thead>
-                <tbody id="adminWithdrawalsTable"></tbody>
+                <tbody id="adminWithdrawalsTable">
+                    <tr><td colspan="6" class="text-center text-muted">لا توجد طلبات سحب حاليًا</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
         </div>
-        <!-- All Orders Tab -->
-        <div class="tab-pane fade" id="ordersTab">
+        <div class="tab-pane fade" id="ordersTab" role="tabpanel" aria-labelledby="orders-tab">
           <div class="main-card p-3 fade-in">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold mb-3" style="color:#1976d2;"><i class="bi bi-card-list"></i> كل الطلبات</h6>
+              <h6 class="fw-bold mb-3 mb-md-0" style="color:#1976d2;"><i class="bi bi-card-list"></i> كل الطلبات</h6>
               <div class="search-box">
                 <input type="text" class="form-control" id="orderSearchInput" placeholder="بحث برقم الطلب...">
                 <span><i class="bi bi-search"></i></span>
@@ -245,13 +318,15 @@
                     <th>العنوان</th>
                     <th>الهاتف 1</th>
                     <th>الهاتف 2</th>
-                    <th>المبلغ</th>
+                    <th>المبلغ مع التوصيل</th>
                     <th>الحالة</th>
                     <th>تغيير الحالة</th>
                     <th>إجراءات</th>
                   </tr>
                 </thead>
-                <tbody id="adminOrdersTable"></tbody>
+                <tbody id="adminOrdersTable">
+                    <tr><td colspan="9" class="text-center text-muted">لا توجد طلبات حاليًا</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -260,31 +335,30 @@
     </div>
   </div>
 
-  <!-- تعديل الطلب (نافذة منبثقة) -->
-  <div class="modal fade" id="editOrderModal" tabindex="-1">
+  <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <form class="modal-content" id="adminOrderEditForm">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-pencil-square"></i> تعديل الطلب</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <h5 class="modal-title" id="editOrderModalLabel"><i class="bi bi-pencil-square"></i> تعديل الطلب</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="adminEditOrderUid">
           <input type="hidden" id="adminEditOrderId">
           <div class="mb-3">
-            <label class="form-label">عنوان الزبون</label>
+            <label for="adminOrderAddress" class="form-label">عنوان الزبون</label>
             <input type="text" class="form-control" id="adminOrderAddress" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">رقم الهاتف الأول</label>
+            <label for="adminOrderPhone1" class="form-label">رقم الهاتف الأول</label>
             <input type="text" class="form-control" id="adminOrderPhone1" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">رقم الهاتف الثاني</label>
+            <label for="adminOrderPhone2" class="form-label">رقم الهاتف الثاني</label>
             <input type="text" class="form-control" id="adminOrderPhone2">
           </div>
           <div class="mb-3">
-            <label class="form-label">المبلغ الكلي بدون التوصيل (د.ع)</label>
+            <label for="adminOrderAmount" class="form-label">المبلغ الكلي بدون التوصيل (د.ع)</label>
             <input type="number" class="form-control" id="adminOrderAmount" required min="0">
           </div>
         </div>
@@ -296,7 +370,6 @@
     </div>
   </div>
 
-  <!-- Bootstrap 5, SweetAlert2, Firebase SDKs -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module">
@@ -341,7 +414,7 @@
 
     let usersArr = [], allOrdersArr = [], allWithdrawalsArr = [];
     let selectedUserId = null, usersMap = {};
-    let filteredOrdersArr = []; // بعد البحث
+    let filteredOrdersArr = [];
 
     function usernameToEmail(username) {
       return username.trim().replace(/\s+/g,'_') + "@arpon11.com";
@@ -358,11 +431,28 @@
         loadAllOrders();
         loadAllWithdrawals();
       } else {
-        Swal.fire({ icon: 'error', title: 'بيانات الدخول غير صحيحة!' });
+        Swal.fire({ icon: 'error', title: 'خطأ في تسجيل الدخول', text: 'بيانات الدخول غير صحيحة!' });
       }
     };
 
-    logoutBtn.onclick = () => location.reload();
+    logoutBtn.onclick = () => {
+        Swal.fire({
+            title: 'تسجيل الخروج',
+            text: 'هل أنت متأكد أنك تريد تسجيل الخروج؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، تسجيل الخروج',
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            }
+        });
+    };
+
+    function getDeliveryFee(idx) {
+      return idx < 3 ? 1500 : 2000;
+    }
 
     function loadUsers() {
       onValue(ref(db, "users"), snap => {
@@ -373,44 +463,68 @@
           usersArr = Object.entries(snap.val()).map(([uid, data]) => ({uid, ...data}));
           usersArr.forEach(u => {
             usersMap[u.uid] = u;
-            usersList.innerHTML += `<li class="list-group-item" onclick="selectUser('${u.uid}')">${u.username}</li>`;
+            usersList.innerHTML += `<li class="list-group-item ${selectedUserId === u.uid ? 'active' : ''}" onclick="selectUser('${u.uid}')">${u.username}</li>`;
           });
         }
       });
     }
+
     window.selectUser = (uid) => {
-      selectedUserId = uid;
-      const u = usersMap[uid];
-      if (!u) return;
-      selectedUserInfo.innerHTML =
-        `<div class="mb-2"><b>اسم المستخدم:</b> ${u.username}</div>
-         <div class="mb-2"><b>العنوان:</b> ${u.address}</div>
-         <div class="mb-2"><b>الهاتف 1:</b> ${u.phone1} | <b>الهاتف 2:</b> ${u.phone2 || '-'}</div>
-         <div class="mb-2"><b>اسم البيج:</b> ${u.page}</div>`;
-      get(ref(db, `orders/${uid}`)).then(snap => {
-        selectedUserOrders.innerHTML = `<h6 class="fw-bold mt-3">طلبات المستخدم</h6>`;
-        if (snap.exists()) {
-          selectedUserOrders.innerHTML += `
-            <table class="table table-sm align-middle">
-              <thead><tr><th>رقم الطلب</th><th>العنوان</th><th>الهاتف 1</th><th>المبلغ</th><th>الحالة</th></tr></thead>
-              <tbody>
-                ${
-                  Object.values(snap.val()).map(order =>
-                  `<tr>
-                    <td>${order.number}</td>
-                    <td>${order.address}</td>
-                    <td>${order.phone1}</td>
-                    <td>${order.amount}</td>
-                    <td>${order.status}</td>
-                  </tr>`).join('')
-                }
-              </tbody>
-            </table>
-          `;
-        } else {
-          selectedUserOrders.innerHTML += `<div class="alert alert-info mt-2">لا توجد طلبات</div>`;
+        selectedUserId = uid;
+        Array.from(usersList.children).forEach(item => item.classList.remove('active'));
+        const selectedItem = usersList.querySelector(`[onclick="selectUser('${uid}')"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('active');
         }
-      });
+
+        const u = usersMap[uid];
+        if (!u) {
+            selectedUserInfo.innerHTML = `<div class="alert alert-warning text-center" role="alert">لم يتم العثور على بيانات المستخدم.</div>`;
+            selectedUserOrders.innerHTML = '';
+            return;
+        }
+
+        selectedUserInfo.innerHTML =
+            `<div class="mb-2"><b>اسم المستخدم:</b> ${u.username}</div>
+             <div class="mb-2"><b>العنوان:</b> ${u.address}</div>
+             <div class="mb-2"><b>الهاتف 1:</b> ${u.phone1} | <b>الهاتف 2:</b> ${u.phone2 || '-'}</div>
+             <div class="mb-2"><b>اسم البيج:</b> ${u.page}</div>`;
+
+        get(ref(db, `orders/${uid}`)).then(snap => {
+            selectedUserOrders.innerHTML = `<h6 class="fw-bold mt-4" style="color:#1976d2;">طلبات المستخدم</h6>`;
+            if (snap.exists()) {
+                const orders = Object.values(snap.val());
+                selectedUserOrders.innerHTML += `
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead><tr><th>رقم الطلب</th><th>العنوان</th><th>الهاتف 1</th><th>المبلغ مع التوصيل</th><th>الحالة</th></tr></thead>
+                            <tbody>
+                                ${orders.map((order, idx) =>
+                                    `<tr>
+                                        <td>${order.number}</td>
+                                        <td>${order.address}</td>
+                                        <td>${order.phone1}</td>
+                                        <td>${parseInt(order.amount) + getDeliveryFee(idx)} د.ع</td>
+                                        <td><span class="badge order-status-badge bg-${
+                                            order.status==='بأنتظار وصول المندوب اليك' ? 'warning'
+                                            : order.status==='تم الاستلام من قبل المندوب' ? 'success'
+                                            : order.status==='راجعة' ? 'danger'
+                                            : order.status==='تم التسليم بنجاح' ? 'primary'
+                                            : 'secondary'
+                                        }">${order.status}</span></td>
+                                    </tr>`).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                selectedUserOrders.innerHTML += `<div class="alert alert-info mt-2 text-center" role="alert">لا توجد طلبات لهذا المستخدم حاليًا.</div>`;
+            }
+        }).catch(error => {
+            console.error("Error fetching user orders:", error);
+            selectedUserOrders.innerHTML += `<div class="alert alert-danger mt-2 text-center" role="alert">حدث خطأ أثناء تحميل الطلبات.</div>`;
+        });
     };
 
     addUserForm.onsubmit = async (e) => {
@@ -421,9 +535,40 @@
       const phone2 = document.getElementById('newPhone2').value.trim();
       const page = document.getElementById('newPage').value.trim();
       const password = document.getElementById('newPassword').value;
-      if (!username || !address || !phone1 || !page || !password) return;
+
+      if (!username || !address || !phone1 || !page || !password) {
+          Swal.fire({
+              icon: 'warning',
+              title: 'حقول مطلوبة',
+              text: 'الرجاء ملء جميع الحقول المطلوبة.',
+          });
+          return;
+      }
+
       const email = usernameToEmail(username);
       try {
+        const usersRef = ref(db, "users");
+        const snapshot = await get(usersRef);
+        let usernameExists = false;
+        if (snapshot.exists()) {
+            snapshot.forEach(childSnapshot => {
+                const userData = childSnapshot.val();
+                if (userData.username === username) {
+                    usernameExists = true;
+                    return true;
+                }
+            });
+        }
+
+        if (usernameExists) {
+            Swal.fire({
+                icon: 'error',
+                title: 'اسم المستخدم موجود',
+                text: 'اسم المستخدم هذا موجود بالفعل. الرجاء اختيار اسم مستخدم آخر.',
+            });
+            return;
+        }
+
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const uid = userCred.user.uid;
         await set(ref(db, "users/" + uid), {
@@ -431,24 +576,38 @@
         });
         Swal.fire({icon:'success',title:'تمت إضافة المستخدم بنجاح!'});
         addUserForm.reset();
+        selectUser(uid);
       } catch (err) {
-        Swal.fire({icon:'error',title:'فشل إضافة المستخدم',text:err.message});
+        let errorMessage = 'فشل إضافة المستخدم';
+        if (err.code === 'auth/email-already-in-use') {
+            errorMessage = 'البريد الإلكتروني (اسم المستخدم) مستخدم بالفعل. الرجاء استخدام اسم مستخدم آخر.';
+        } else if (err.code === 'auth/weak-password') {
+            errorMessage = 'كلمة المرور ضعيفة جدًا. الرجاء استخدام كلمة مرور أقوى (6 أحرف على الأقل).';
+        } else {
+            errorMessage += `: ${err.message}`;
+        }
+        Swal.fire({icon:'error',title:'خطأ',text:errorMessage});
       }
     };
 
     function renderOrdersTable(ordersArr) {
       adminOrdersTable.innerHTML = '';
-      ordersArr.forEach(order => {
+      if (ordersArr.length === 0) {
+          adminOrdersTable.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">لا توجد طلبات لعرضها</td></tr>';
+          return;
+      }
+      ordersArr.forEach((order, idx) => {
         const uid = order.userId;
         const orderId = order.orderId;
+        const amountWithDelivery = parseInt(order.amount) + getDeliveryFee(idx);
         adminOrdersTable.innerHTML += `
           <tr>
             <td>${usersMap[uid]?.username || '---'}</td>
             <td>${order.number}</td>
             <td>${order.address}</td>
             <td>${order.phone1}</td>
-            <td>${order.phone2}</td>
-            <td>${order.amount}</td>
+            <td>${order.phone2 || '-'}</td>
+            <td>${amountWithDelivery} د.ع</td>
             <td>
               <span class="badge order-status-badge bg-${
                 order.status==='بأنتظار وصول المندوب اليك' ? 'warning'
@@ -467,8 +626,8 @@
               </select>
             </td>
             <td>
-              <button class="btn btn-sm btn-primary mb-1" onclick="adminEditOrder('${uid}','${orderId}')"><i class="bi bi-pencil-square"></i></button>
-              <button class="btn btn-sm btn-danger" onclick="adminDeleteOrder('${uid}','${orderId}')"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-sm btn-primary mb-1" onclick="adminEditOrder('${uid}','${orderId}')" title="تعديل الطلب"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="adminDeleteOrder('${uid}','${orderId}')" title="حذف الطلب"><i class="bi bi-trash"></i></button>
             </td>
           </tr>
         `;
@@ -485,21 +644,27 @@
             });
           });
         }
-        // عند التغيير في البحث أو البيانات أعد رسم الجدول
+        allOrdersArr.sort((a, b) => {
+            const statusOrder = {
+                'بأنتظار وصول المندوب اليك': 1,
+                'تم الاستلام من قبل المندوب': 2,
+                'راجعة': 3,
+                'تم التسليم بنجاح': 4
+            };
+            return (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
+        });
         filterOrders();
       });
     }
 
-    // بحث حسب رقم الطلب
     function filterOrders() {
-      const query = orderSearchInput.value.trim();
+      const query = orderSearchInput.value.trim().toLowerCase();
       if (!query) {
         renderOrdersTable(allOrdersArr);
         return;
       }
-      // بحث جزئي وليس مطابق تماماً
       filteredOrdersArr = allOrdersArr.filter(order =>
-        order.number && order.number.includes(query)
+        order.number && order.number.toLowerCase().includes(query)
       );
       renderOrdersTable(filteredOrdersArr);
     }
@@ -509,21 +674,34 @@
     window.adminDeleteOrder = async (uid, orderId) => {
       Swal.fire({
         title: 'تأكيد الحذف',
-        text: 'هل أنت متأكد من حذف الطلب؟',
+        text: 'هل أنت متأكد من حذف الطلب؟ لا يمكن التراجع عن هذا الإجراء!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'نعم، احذف',
-        cancelButtonText: 'إلغاء'
+        cancelButtonText: 'إلغاء',
+        customClass: {
+            confirmButton: 'btn btn-danger',
+            cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await remove(ref(db, `orders/${uid}/${orderId}`));
+          try {
+            await remove(ref(db, `orders/${uid}/${orderId}`));
+            Swal.fire('تم الحذف!', 'تم حذف الطلب بنجاح.', 'success');
+          } catch (error) {
+            Swal.fire('خطأ!', 'فشل حذف الطلب: ' + error.message, 'error');
+          }
         }
       });
     };
 
     window.adminEditOrder = (uid, orderId) => {
       const order = allOrdersArr.find(o => o.userId === uid && o.orderId === orderId);
-      if (!order) return;
+      if (!order) {
+          Swal.fire('خطأ', 'لم يتم العثور على الطلب المراد تعديله.', 'error');
+          return;
+      }
       adminEditOrderUid.value = uid;
       adminEditOrderId.value = orderId;
       adminOrderAddress.value = order.address;
@@ -541,10 +719,25 @@
       const phone1 = adminOrderPhone1.value.trim();
       const phone2 = adminOrderPhone2.value.trim();
       const amount = parseInt(adminOrderAmount.value, 10);
-      await update(ref(db, `orders/${uid}/${orderId}`), {
-        address, phone1, phone2, amount
-      });
-      bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+
+      if (!address || !phone1 || isNaN(amount) || amount < 0) {
+          Swal.fire({
+              icon: 'warning',
+              title: 'حقول مطلوبة',
+              text: 'الرجاء ملء جميع الحقول بشكل صحيح.',
+          });
+          return;
+      }
+
+      try {
+        await update(ref(db, `orders/${uid}/${orderId}`), {
+          address, phone1, phone2, amount
+        });
+        bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+        Swal.fire('تم الحفظ!', 'تم تعديل بيانات الطلب بنجاح.', 'success');
+      } catch (error) {
+          Swal.fire('خطأ!', 'فشل تعديل الطلب: ' + error.message, 'error');
+      }
     };
 
     function loadAllWithdrawals() {
@@ -555,55 +748,84 @@
           Object.entries(snap.val()).forEach(([uid, arr]) => {
             Object.entries(arr).forEach(([wid, w]) => {
               allWithdrawalsArr.push({...w, wid, userId: uid});
-              adminWithdrawalsTable.innerHTML += `
-                <tr>
-                  <td>${usersMap[uid]?.username || '---'}</td>
-                  <td>${w.method === 'delivery' ? 'مندوب' : 'مصرف الرافدين'}</td>
-                  <td class="account-cell">${w.method === 'bank' && w.bankAccount ? w.bankAccount : '-'}</td>
-                  <td>${w.amount} د.ع</td>
-                  <td>
-                    <span class="badge bg-${w.status==='قيد المعالجة'?'warning':'success'}">${w.status}</span>
-                  </td>
-                  <td>
-                    ${w.status==='قيد المعالجة'?
-                      `<button class="btn btn-sm btn-success mb-1" onclick="approveWithdrawal('${uid}','${wid}')">تم الاستلام</button>`
-                      : ''}
-                    <button class="btn btn-sm btn-danger" onclick="deleteWithdrawal('${uid}','${wid}')">حذف</button>
-                  </td>
-                </tr>
-              `;
             });
           });
+          allWithdrawalsArr.sort((a, b) => {
+              if (a.status === 'قيد المعالجة' && b.status !== 'قيد المعالجة') return -1;
+              if (a.status !== 'قيد المعالجة' && b.status === 'قيد المعالجة') return 1;
+              return 0;
+          });
+
+          allWithdrawalsArr.forEach(w => {
+            const uid = w.userId;
+            const wid = w.wid;
+            adminWithdrawalsTable.innerHTML += `
+              <tr>
+                <td>${usersMap[uid]?.username || '---'}</td>
+                <td>${w.method === 'delivery' ? 'مندوب' : 'مصرف الرافدين'}</td>
+                <td class="account-cell">${w.method === 'bank' && w.bankAccount ? w.bankAccount : '-'}</td>
+                <td>${w.amount} د.ع</td>
+                <td>
+                  <span class="badge bg-${w.status==='قيد المعالجة'?'warning':'success'}">${w.status}</span>
+                </td>
+                <td>
+                  ${w.status==='قيد المعالجة'?
+                    `<button class="btn btn-sm btn-success mb-1" onclick="approveWithdrawal('${uid}','${wid}')" title="تأكيد الاستلام">تم الاستلام</button>`
+                    : ''}
+                  <button class="btn btn-sm btn-danger" onclick="deleteWithdrawal('${uid}','${wid}')" title="حذف طلب السحب">حذف</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+        if (allWithdrawalsArr.length === 0) {
+            adminWithdrawalsTable.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">لا توجد طلبات سحب حاليًا</td></tr>';
         }
       });
     }
+
     window.approveWithdrawal = async (uid, wid) => {
-      await update(ref(db, `withdrawals/${uid}/${wid}`), {status:'تم الاستلام'});
+      try {
+        await update(ref(db, `withdrawals/${uid}/${wid}`), {status:'تم الاستلام'});
+        Swal.fire('تم التأكيد!', 'تم تأكيد طلب السحب بنجاح.', 'success');
+      } catch (error) {
+        Swal.fire('خطأ!', 'فشل تأكيد طلب السحب: ' + error.message, 'error');
+      }
     };
+
     window.deleteWithdrawal = async (uid, wid) => {
       Swal.fire({
         title: 'تأكيد الحذف',
-        text: 'هل أنت متأكد من حذف عملية السحب؟',
+        text: 'هل أنت متأكد من حذف عملية السحب؟ لا يمكن التراجع عن هذا الإجراء!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'نعم، احذف',
-        cancelButtonText: 'إلغاء'
+        cancelButtonText: 'إلغاء',
+        customClass: {
+            confirmButton: 'btn btn-danger',
+            cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await remove(ref(db, `withdrawals/${uid}/${wid}`));
+          try {
+            await remove(ref(db, `withdrawals/${uid}/${wid}`));
+            Swal.fire('تم الحذف!', 'تم حذف طلب السحب بنجاح.', 'success');
+          } catch (error) {
+            Swal.fire('خطأ!', 'فشل حذف طلب السحب: ' + error.message, 'error');
+          }
         }
       });
     };
 
-    // تثبيت الدوال
-    window.selectUser = window.selectUser;
     window.changeOrderStatus = async (uid, orderId, status) => {
-      await update(ref(db, `orders/${uid}/${orderId}`), {status});
+        try {
+            await update(ref(db, `orders/${uid}/${orderId}`), {status});
+            Swal.fire('تم التحديث!', 'تم تغيير حالة الطلب بنجاح.', 'success');
+        } catch (error) {
+            Swal.fire('خطأ!', 'فشل تغيير حالة الطلب: ' + error.message, 'error');
+        }
     };
-    window.adminDeleteOrder = window.adminDeleteOrder;
-    window.adminEditOrder = window.adminEditOrder;
-    window.approveWithdrawal = window.approveWithdrawal;
-    window.deleteWithdrawal = window.deleteWithdrawal;
   </script>
 </body>
 </html>
