@@ -117,7 +117,7 @@
             <div class="px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4 lg:py-6">
                     <div class="flex items-center">
-                        <button onclick="toggleSidebar()" class="lg:hidden ml-2 p-2 rounded-md text-gray-600 hover:text-gray-900">
+                        <button id="sidebarToggle" onclick="toggleSidebar()" class="ml-2 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                             </svg>
@@ -135,7 +135,7 @@
         </header>
 
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed right-0 top-16 sm:top-20 h-full w-64 bg-white shadow-lg transform sidebar-mobile transition-transform duration-300 ease-in-out z-30 lg:translate-x-0">
+        <div id="sidebar" class="fixed right-0 top-16 sm:top-20 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30 translate-x-0">
             <div class="p-6">
                 <nav class="space-y-2">
                     <a href="#" onclick="showSection('stats')" class="sidebar-item active flex items-center px-4 py-3 rounded-lg">
@@ -178,10 +178,10 @@
         </div>
 
         <!-- Overlay for mobile -->
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden" onclick="toggleSidebar()"></div>
 
         <!-- Main Content -->
-        <div class="lg:mr-64 pt-16 sm:pt-20">
+        <div id="mainContent" class="mr-64 pt-16 sm:pt-20 transition-all duration-300 ease-in-out">
             <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 
                 <!-- Statistics Section -->
@@ -539,7 +539,34 @@
             loadOrders();
             loadUsers();
             loadWithdrawals();
+            
+            // Handle responsive behavior
+            handleResize();
+            window.addEventListener('resize', handleResize);
         });
+
+        // Handle responsive behavior
+        function handleResize() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth < 1024) {
+                // Mobile: hide sidebar by default
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+                mainContent.classList.remove('mr-64');
+                mainContent.classList.add('mr-0');
+                overlay.classList.add('hidden');
+            } else {
+                // Desktop: show sidebar by default
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                mainContent.classList.remove('mr-0');
+                mainContent.classList.add('mr-64');
+                overlay.classList.add('hidden');
+            }
+        }
 
 
 
@@ -604,17 +631,30 @@
             }
         }
 
-        // Toggle sidebar for mobile
+        // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
             const overlay = document.getElementById('overlay');
             
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
+            if (sidebar.classList.contains('translate-x-full')) {
+                // Show sidebar
+                sidebar.classList.remove('translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                mainContent.classList.remove('mr-0');
+                mainContent.classList.add('mr-64');
                 overlay.classList.add('hidden');
             } else {
-                sidebar.classList.add('open');
-                overlay.classList.remove('hidden');
+                // Hide sidebar
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('translate-x-full');
+                mainContent.classList.remove('mr-64');
+                mainContent.classList.add('mr-0');
+                
+                // Show overlay on mobile
+                if (window.innerWidth < 1024) {
+                    overlay.classList.remove('hidden');
+                }
             }
         }
 
@@ -830,15 +870,23 @@
 
         // Delete order
         function deleteOrder(orderId) {
-            if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
-                database.ref('orders/' + orderId).remove()
-                    .then(() => {
-                        alert('تم حذف الطلب بنجاح');
-                    })
-                    .catch((error) => {
-                        alert('حدث خطأ في حذف الطلب: ' + error.message);
-                    });
-            }
+            const order = allOrders.find(o => o.id === orderId);
+            const orderInfo = order ? `الطلب #${order.id} للمستخدم "${order.username || 'غير محدد'}"` : `الطلب #${orderId}`;
+            
+            showConfirmModal(
+                `هل أنت متأكد من حذف ${orderInfo}؟ هذا الإجراء لا يمكن التراجع عنه.`, 
+                function() {
+                    database.ref('orders/' + orderId).remove()
+                        .then(() => {
+                            showSuccessMessage('تم حذف الطلب بنجاح! ✅');
+                            closeConfirmModal();
+                        })
+                        .catch((error) => {
+                            showErrorMessage('حدث خطأ في حذف الطلب: ' + error.message);
+                            closeConfirmModal();
+                        });
+                }
+            );
         }
 
         // Handle edit form submission
@@ -1216,5 +1264,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97885980907d5160',t:'MTc1Njc2NzI2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9788c11bc2577793',t:'MTc1Njc3MTUxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
